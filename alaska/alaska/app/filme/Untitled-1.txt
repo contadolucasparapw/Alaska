@@ -1,0 +1,10 @@
+coisas que eu nao vou usar por enquanto:
+
+      {/* Placeholder area for when you build session selection later */}
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Sessões</Text>
+        <Text style={styles.metaText}>Em breve...</Text>
+      </View>
+    </ScrollView>
+  );
+}
