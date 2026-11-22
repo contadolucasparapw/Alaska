@@ -1,14 +1,13 @@
-namespace appdomateus.models
+// Models/Sessao.cs
+public class Sessao
 {
-    public class Sessao
-    {
-        public int IdSessao { get; set; }
-        public int IdFilme { get; set; }
-        public int IdSala { get; set; }
-        public string NomeSala { get; set; } = string.Empty;
-        public DateTime DataHora { get; set; }
-        public decimal Preco { get; set; }
-        public int Status { get; set; }
-        public int IngressosDisponiveis { get; set; }
-    }
+    public int IdSessao { get; set; }
+    public int IdFilme { get; set; }
+    public int IdSala { get; set; }
+    public string NomeSala { get; set; } = string.Empty;
+    public DateTime DataHora { get; set; } 
+    public string TipoSessao { get; set; } = "2D Dublado"; 
+    public decimal Preco { get; set; }
+    public int Status { get; set; }
+    public int IngressosDisponiveis { get; set; }
 }
