@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alaska Cinema • Dashboard Admin</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #20222e;
+      color: #f1f1f3;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 240px;
+      background-color: #181a24;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #2b2e3d;
+    }
+
+    .brand {
+      font-size: 20px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+      padding: 0 12px;
+    }
+
+    .brand span {
+      color: #3b82f6;
+    }
+
+    .api-status {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: #20222e;
+      color: #22c55e;
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .api-status.offline {
+      color: #ef4444;
+    }
+
+    .nav-btn {
+      background: transparent;
+      color: #a0a3b1;
+      border: none;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 6px;
+      transition: all 0.15s;
+    }
+
+    .nav-btn:hover {
+      background-color: #2b2e3d;
+      color: #ffffff;
+    }
+
+    .nav-btn.active {
+      background-color: #3b82f6;
+      color: #ffffff;
+    }
+
+    .main {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .topbar h1 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      background-color: #3b82f6;
+      color: #ffffff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background-color: #2563eb;
+    }
+
+    .btn-success {
+      background-color: #22c55e;
+      color: #ffffff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-success:hover {
+      background-color: #16a34a;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background-color: #2b2e3d;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background-color: #2b2e3d;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .kpi-label {
+      color: #a0a3b1;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .green { color: #22c55e; }
+    .blue { color: #3b82f6; }
+
+    .card h2 {
+      font-size: 17px;
+      margin-bottom: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 13px 12px;
+      border-bottom: 1px solid #20222e;
+      font-size: 14px;
+    }
+
+    th {
+      color: #a0a3b1;
+      font-weight: 600;
+    }
+
+    .badge {
+      background-color: #3b82f6;
+      color: #ffffff;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-cartaz {
+      background-color: #22c55e;
+      color: #052e16;
+    }
+
+    .badge-breve {
+      background-color: #f59e0b;
+      color: #451a03;
+    }
+
+    .poster-thumb {
+      width: 36px;
+      height: 52px;
+      border-radius: 4px;
+      object-fit: cover;
+      background-color: #20222e;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #a0a3b1;
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #35394b;
+      background-color: #20222e;
+      color: #ffffff;
+      font-size: 14px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .empty {
+      text-align: center;
+      color: #a0a3b1;
+      padding: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand">ALASKA <span>ADMIN</span></div>
+    <div id="statusBadge" class="api-status">● Conectando...</div>
+
+    <button class="nav-btn active" onclick="mudarAba('visaoGeral', this)">Visão Geral</button>
+    <button class="nav-btn" onclick="mudarAba('vendas', this)">Ingressos Vendidos</button>
+    <button class="nav-btn" onclick="mudarAba('filmes', this)">Catálogo de Filmes</button>
+    <button class="nav-btn" onclick="mudarAba('novoFilme', this)">Cadastrar Filme</button>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <h1 id="pageTitle">Visão Geral</h1>
+      <button class="btn-primary" onclick="carregarDados()">↻ Atualizar Dados</button>
+    </div>
+
+    <!-- ABA 1: VISÃO GERAL -->
+    <section id="visaoGeral" class="section active">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Receita Total</div>
+          <div class="kpi-value green" id="kpiReceita">R$ 0,00</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Ingressos Vendidos</div>
+          <div class="kpi-value" id="kpiIngressos">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Pedidos Realizados</div>
+          <div class="kpi-value" id="kpiPedidos">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Filmes no Banco</div>
+          <div class="kpi-value blue" id="kpiFilmes">0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Últimas Compras Registradas</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>#Pedido</th>
+              <th>Filme</th>
+              <th>Sessão</th>
+              <th>Tipo</th>
+              <th>Qtd.</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaResumoVendas">
+            <tr><td colspan="6" class="empty">Carregando dados...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ABA 2: INGRESSOS VENDIDOS -->
+    <section id="vendas" class="section">
+      <div class="card">
+        <h2>Histórico Completo de Ingressos Vendidos</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>#ID</th>
+              <th>Filme</th>
+              <th>Dia & Horário</th>
+              <th>Tipo de Sessão</th>
+              <th>Quantidade</th>
+              <th>Valor Total</th>
+              <th>Data / Hora da Compra</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaTodasVendas">
+            <tr><td colspan="7" class="empty">Carregando vendas...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ABA 3: CATÁLOGO DE FILMES -->
+    <section id="filmes" class="section">
+      <div class="card">
+        <h2>Filmes Cadastrados no SQL Server</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Pôster</th>
+              <th>Título</th>
+              <th>Duração</th>
+              <th>Classificação</th>
+              <th>Lançamento</th>
+              <th>Categoria</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaFilmes">
+            <tr><td colspan="7" class="empty">Carregando filmes...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ABA 4: CADASTRAR NOVO FILME -->
+    <section id="novoFilme" class="section">
+      <div class="card" style="max-width: 650px;">
+        <h2>Adicionar Novo Filme ao Banco</h2>
+        <form id="formFilme" onsubmit="cadastrarFilme(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Título do Filme</label>
+              <input type="text" id="titulo" placeholder="Ex: Interestelar" required />
+            </div>
+            <div class="form-group">
+              <label>Duração (minutos)</label>
+              <input type="number" id="duracao" placeholder="169" required />
+            </div>
+            <div class="form-group">
+              <label>Classificação Indicativa</label>
+              <select id="classificacao">
+                <option value="0">Livre</option>
+                <option value="10">10 anos</option>
+                <option value="12" selected>12 anos</option>
+                <option value="14">14 anos</option>
+                <option value="16">16 anos</option>
+                <option value="18">18 anos</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Data de Lançamento</label>
+              <input type="date" id="dataLancamento" required />
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label>URL da Imagem do Pôster</label>
+            <input type="url" id="posterUrl" placeholder="https://..." required />
+          </div>
+
+          <button type="submit" class="btn-success">Salvar Filme no SQL Server</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+    <script>
+    const API_URL = "http://localhost:5000/api";
+    let rotaFilmeAtiva = "Filme";
+
+    const titulosAbas = {
+      visaoGeral: "Visão Geral",
+      vendas: "Ingressos Vendidos",
+      filmes: "Catálogo de Filmes",
+      novoFilme: "Cadastrar Novo Filme"
+    };
+
+    function mudarAba(idAba, botao) {
+      document.querySelectorAll(".section").forEach(function (sec) {
+        sec.classList.remove("active");
+      });
+      document.querySelectorAll(".nav-btn").forEach(function (btn) {
+        btn.classList.remove("active");
+      });
+
+      document.getElementById(idAba).classList.add("active");
+      botao.classList.add("active");
+      document.getElementById("pageTitle").textContent = titulosAbas[idAba];
+    }
+
+    function formatBRL(v) {
+      return "R$ " + Number(v || 0).toFixed(2).replace(".", ",");
+    }
+
+    async function buscarFilmes() {
+      let res = await fetch(API_URL + "/Filme");
+      if (res.status === 404) {
+        res = await fetch(API_URL + "/Filmes");
+        if (res.ok) rotaFilmeAtiva = "Filmes";
+      }
+      if (!res.ok) throw new Error("Erro HTTP " + res.status + " ao buscar filmes");
+      return await res.json();
+    }
+
+    async function buscarVendas() {
+      const res = await fetch(API_URL + "/Venda");
+      if (res.status === 404) return [];
+      if (!res.ok) throw new Error("Erro HTTP " + res.status + " ao buscar vendas");
+      return await res.json();
+    }
+
+    async function carregarDados() {
+      const badge = document.getElementById("statusBadge");
+
+      try {
+        const resultados = await Promise.all([
+          buscarFilmes(),
+          buscarVendas()
+        ]);
+        const filmes = resultados[0];
+        const vendas = resultados[1];
+
+        badge.textContent = "● Alaska.API Online";
+        badge.classList.remove("offline");
+
+        // KPIs
+        const receita = vendas.reduce(function (acc, v) {
+          return acc + Number(v.valorTotal || 0);
+        }, 0);
+        const ingressos = vendas.reduce(function (acc, v) {
+          return acc + Number(v.quantidade || 0);
+        }, 0);
+
+        document.getElementById("kpiReceita").textContent = formatBRL(receita);
+        document.getElementById("kpiIngressos").textContent = ingressos;
+        document.getElementById("kpiPedidos").textContent = vendas.length;
+        document.getElementById("kpiFilmes").textContent = filmes.length;
+
+        // Tabela Resumo (Visão Geral)
+        const tbodyResumo = document.getElementById("tabelaResumoVendas");
+        if (vendas.length === 0) {
+          tbodyResumo.innerHTML = '<tr><td colspan="6" class="empty">Nenhuma compra registrada no SQL ainda. Faça uma compra no app!</td></tr>';
+        } else {
+          tbodyResumo.innerHTML = vendas.slice(0, 5).map(function (v) {
+            return (
+              "<tr>" +
+              "<td>#" + v.idVenda + "</td>" +
+              "<td><strong>" + v.tituloFilme + "</strong></td>" +
+              "<td>" + v.dia + " às " + v.horario + "</td>" +
+              '<td><span class="badge">' + v.tipoSessao + "</span></td>" +
+              "<td>" + v.quantidade + "x</td>" +
+              '<td class="green"><strong>' + formatBRL(v.valorTotal) + "</strong></td>" +
+              "</tr>"
+            );
+          }).join("");
+        }
+
+        // Tabela Completa de Vendas
+        const tbodyVendas = document.getElementById("tabelaTodasVendas");
+        if (vendas.length === 0) {
+          tbodyVendas.innerHTML = '<tr><td colspan="7" class="empty">Nenhum ingresso vendido ainda.</td></tr>';
+        } else {
+          tbodyVendas.innerHTML = vendas.map(function (v) {
+            const dataFormatada = v.dataCompra
+              ? new Date(v.dataCompra).toLocaleString("pt-BR")
+              : "-";
+            return (
+              "<tr>" +
+              "<td>#" + v.idVenda + "</td>" +
+              "<td><strong>" + v.tituloFilme + "</strong></td>" +
+              "<td>" + v.dia + " às " + v.horario + "</td>" +
+              '<td><span class="badge">' + v.tipoSessao + "</span></td>" +
+              "<td>" + v.quantidade + "x</td>" +
+              '<td class="green"><strong>' + formatBRL(v.valorTotal) + "</strong></td>" +
+              "<td>" + dataFormatada + "</td>" +
+              "</tr>"
+            );
+          }).join("");
+        }
+
+        // Tabela de Filmes
+        const tbodyFilmes = document.getElementById("tabelaFilmes");
+        if (filmes.length === 0) {
+          tbodyFilmes.innerHTML = '<tr><td colspan="7" class="empty">Tabela Filmes vazia no SQL Server.</td></tr>';
+        } else {
+          tbodyFilmes.innerHTML = filmes.map(function (f) {
+            const classificacaoTexto = f.classificacaoIndicativa
+              ? f.classificacaoIndicativa
+              : f.classificacao === 0
+              ? "Livre"
+              : (f.classificacao != null ? f.classificacao : 12) + " anos";
+
+            const lancamentoTexto = f.dataLancamento
+              ? new Date(f.dataLancamento).toLocaleDateString("pt-BR")
+              : "-";
+
+            const badgeClasse = f.id < 6 ? "badge-cartaz" : "badge-breve";
+            const badgeTexto = f.id < 6 ? "Em Cartaz" : "Em Breve";
+
+            return (
+              "<tr>" +
+              "<td>#" + f.id + "</td>" +
+              '<td><img class="poster-thumb" src="' + (f.posterUrl || "") + '" alt="' + f.titulo + '" /></td>' +
+              "<td><strong>" + f.titulo + "</strong></td>" +
+              "<td>" + f.duracao + " min</td>" +
+              "<td>" + classificacaoTexto + "</td>" +
+              "<td>" + lancamentoTexto + "</td>" +
+              '<td><span class="badge ' + badgeClasse + '">' + badgeTexto + "</span></td>" +
+              "</tr>"
+            );
+          }).join("");
+        }
+      } catch (err) {
+        console.error("Erro no Dashboard:", err);
+        badge.textContent = "● Offline: rode dotnet run na porta 5000";
+        badge.classList.add("offline");
+      }
+    }
+
+    async function cadastrarFilme(event) {
+      event.preventDefault();
+
+      const classificacaoNum = Number(document.getElementById("classificacao").value);
+      const novoFilme = {
+        titulo: document.getElementById("titulo").value,
+        duracao: Number(document.getElementById("duracao").value),
+        classificacao: classificacaoNum,
+        classificacaoIndicativa: classificacaoNum === 0 ? "Livre" : classificacaoNum + " anos",
+        dataLancamento: document.getElementById("dataLancamento").value,
+        posterUrl: document.getElementById("posterUrl").value,
+        status: 0
+      };
+
+      try {
+        const res = await fetch(API_URL + "/" + rotaFilmeAtiva, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(novoFilme)
+        });
+
+        if (!res.ok) throw new Error("HTTP " + res.status);
+
+        alert("Filme cadastrado com sucesso no SQL Server!");
+        document.getElementById("formFilme").reset();
+        carregarDados();
+      } catch (err) {
+        alert("Erro ao salvar filme. Verifique o console (F12) e se a API está rodando.");
+      }
+    }
+
+    carregarDados();
+    setInterval(carregarDados, 5000);
+  </script>
